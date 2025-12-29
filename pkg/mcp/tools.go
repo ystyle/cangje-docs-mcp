@@ -351,8 +351,19 @@ func (s *CangJieDocServer) handleGetDocumentContent(ctx context.Context, request
 		section = sec
 	}
 
-	// 查找文档
+	// 查找文档（支持通过 ID 或 FullPathID 查找）
 	doc, exists := s.documents[docID]
+	if !exists {
+		// 如果通过 ID 找不到，尝试通过 FullPathID 查找
+		for _, d := range s.documents {
+			if d.FullPathID == docID {
+				doc = d
+				exists = true
+				break
+			}
+		}
+	}
+
 	if !exists {
 		return mcp.NewToolResultError(fmt.Sprintf("document not found: %s", docID)), nil
 	}

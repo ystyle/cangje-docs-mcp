@@ -15,7 +15,8 @@ const (
 
 // Document 文档结构
 type Document struct {
-	ID            string           `json:"id"`
+	ID            string           `json:"id"`                      // 简洁ID: manual_source_zh_cn_conditional_compilation
+	FullPathID    string           `json:"full_path_id,omitempty"` // 完整路径ID: manual_source_zh_cn_compile_and_build_conditional_compilation
 	Title         string           `json:"title"`
 	Category      DocumentCategory `json:"category"`
 	Subcategory   string           `json:"subcategory,omitempty"`

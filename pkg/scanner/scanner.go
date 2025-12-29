@@ -104,14 +104,15 @@ func (s *Scanner) parseDocument(fullPath, relativePath string) (*types.Document,
 	// 确定分类和子分类
 	category, subcategory := s.determineCategory(relativePath)
 
-	// 生成文档ID
-	docID := s.generateID(category, subcategory, filepath.Base(fullPath))
+	// 生成文档ID（简洁ID和完整路径ID）
+	docID, fullPathID := s.generateID(category, subcategory, relativePath)
 
 	// 生成内容预览
 	contentPreview := s.generateContentPreview(contentStr)
 
 	doc := &types.Document{
 		ID:            docID,
+		FullPathID:    fullPathID,
 		Title:         title,
 		Category:      category,
 		Subcategory:   subcategory,
@@ -258,15 +259,40 @@ func (s *Scanner) determineDifficulty(relativePath string) string {
 	return "intermediate"
 }
 
-// generateID 生成文档ID
-func (s *Scanner) generateID(category types.DocumentCategory, subcategory, filename string) string {
+// generateID 生成文档ID（返回简洁ID和完整路径ID）
+func (s *Scanner) generateID(category types.DocumentCategory, subcategory, relativePath string) (string, string) {
+	filename := filepath.Base(relativePath)
 	base := strings.TrimSuffix(filename, filepath.Ext(filename))
 	base = strings.ToLower(strings.ReplaceAll(base, "-", "_"))
 
+	// 生成简洁ID：category_subcategory_filename
+	var docID string
 	if subcategory != "" {
-		return fmt.Sprintf("%s_%s_%s", category, subcategory, base)
+		docID = fmt.Sprintf("%s_%s_%s", category, subcategory, base)
+	} else {
+		docID = fmt.Sprintf("%s_%s", category, base)
 	}
-	return fmt.Sprintf("%s_%s", category, base)
+
+	// 生成完整路径ID：将整个相对路径转换为ID
+	// 例如: manual/source_zh_cn/compile_and_build/conditional_compilation.md
+	//      -> manual_source_zh_cn_compile_and_build_conditional_compilation
+	pathParts := strings.Split(relativePath, string(filepath.Separator))
+	var pathIDParts []string
+
+	for i, part := range pathParts {
+		// 跳过文件扩展名
+		if i == len(pathParts)-1 {
+			part = strings.TrimSuffix(part, filepath.Ext(part))
+		}
+		// 转换为小写，替换 - 和 /
+		part = strings.ToLower(strings.ReplaceAll(part, "-", "_"))
+		part = strings.ToLower(strings.ReplaceAll(part, " ", "_"))
+		pathIDParts = append(pathIDParts, part)
+	}
+
+	fullPathID := strings.Join(pathIDParts, "_")
+
+	return docID, fullPathID
 }
 
 // generateContentPreview 生成内容预览
