@@ -14,7 +14,7 @@
 修饰符 变量名: 变量类型 = 初始值
 ```
 
-### 修饰符详解
+###修饰符详解
 
 #### 可变性修饰符
 
@@ -278,6 +278,7 @@ type FnType = (Int64) -> Unit
 func display(a: Int64): Unit {
     println(a)
 }
+
 // 命名参数:
 func name(name!:string)
 
@@ -379,7 +380,7 @@ enum RGBColor {
 ### match 表达式
 
 #### 基本语法
-⚠️ **case**：不需要{}括号
+⚠️ **case**：不需要{}大括号
 
 ```cj
 match (待匹配值) {
@@ -521,6 +522,13 @@ enum Option<T> {
 }
 ```
 
+### 常用方法
+- `let a:Int64 = OptA ?? 0`
+- `optA.isSome()` `optA.isNone()`
+- `if (let Some(a) <- OptA) {...}`
+- `optA ?? return xxx`
+- `optA ?? throw Exception("xxx")`
+
 ### 使用场景
 
 当需要表示某个类型可能有值，也可能没有值的时候使用。
@@ -578,7 +586,59 @@ let l = rec.height  // l = 20
 
 ---
 
-## 9. 单元测试
+## 9. 集合
+>以下添加元素都用`add`方法添加，修改可以使用`[]`下标方式修改， 移除是`remove`, 列表是`remove(at: 1)`
+- Array：不需要增加和删除元素，但需要修改元素
+  - 字面量:  `let arr:Array<String> = ["A", "B", "C"]`
+- ArrayList：需要频繁对元素增删查改
+- HashSet：希望每个元素都是唯一的
+- HashMap：希望存储一系列的映射关系
+  - 字面量:  `let map:HashMap<String, Int> = HashMap( ("A", 1), ("B", 2), ("C",3) )`
+
+## 10. 包
+
+### 声明
+```cj
+// The directory structure is as follows:
+src
+`-- directory_0
+    |-- directory_1
+    |    |-- a.cj
+    |    `-- b.cj
+    `-- c.cj
+`-- main.cj
+
+
+// a.cj
+package demo.directory_0.directory_1
+// b.cj
+package demo.directory_0.directory_1
+// c.cj
+package demo.directory_0
+// main.cj
+package demo
+
+package demo      // root 包 demo
+package demo.directory_0 // root 包 demo 的子包 directory_0
+```
+
+### 导入
+```cj
+package a
+import std.math.*
+import package1.foo
+import {package1.foo, package2.bar, package1.MyClass}
+
+
+直接使用导入的方法，类型
+func test() {
+    let a = pow(1,2) // std.math.pow
+    foo() // 方法
+    let b = MyClass()
+}
+```
+
+## 11. 单元测试
 
 ### 测试宏
 
@@ -656,6 +716,7 @@ class LexerTest {
 11. Lambda 表达式可以立即调用：`{ => 123 }()`
 12. 插值字符串使用 `${}` 而非 `{}`
 13. `Duration` 和 `sleep` 在 `std.core` 里不需导入
+
 ---
 
 ## 快速参考
