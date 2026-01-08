@@ -225,7 +225,11 @@ func (s *Scanner) determineCategory(relativePath string) (types.DocumentCategory
 		}
 		return types.CategoryManual, ""
 	case "libs":
-		// 处理 libs/std 和 libs/stdx
+		// 处理 libs/std, libs/stdx 等，返回更精确的子分类（如 std/core）
+		if len(parts) > 2 {
+			// 返回 std/subdir 或 stdx/subdir
+			return types.CategoryLibs, parts[1] + "/" + parts[2]
+		}
 		if len(parts) > 1 {
 			return types.CategoryLibs, parts[1]
 		}
@@ -372,15 +376,9 @@ func (s *Scanner) splitDocumentIfNeeded(doc *types.Document) []*types.Document {
 			continue
 		}
 
-		// 如果章节内容仍然太大，递归分割
-		if section.CharCount > types.MaxSectionSize {
-			subSections := s.splitLargeSection(doc, section, toc, i)
-			splitDocs = append(splitDocs, subSections...)
-		} else {
-			// 创建章节文档
-			sectionDoc := s.createSectionDocument(doc, section, i)
-			splitDocs = append(splitDocs, sectionDoc)
-		}
+		// 创建章节文档（不再递归分割，保持结构体/类的完整性）
+		sectionDoc := s.createSectionDocument(doc, section, i)
+		splitDocs = append(splitDocs, sectionDoc)
 	}
 
 	// 如果分割失败或没有产生任何文档，返回原文档

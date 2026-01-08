@@ -276,7 +276,7 @@ func (s *CangJieDocServer) listSubcategories(category string, builder strings.Bu
 	// 统计每个子分类的文档数
 	subcatCounts := make(map[string]int)
 	for _, doc := range s.documents {
-		if string(doc.Category) == category && len(doc.Prerequisites) == 0 {
+		if string(doc.Category) == category {
 			subcatCounts[doc.Subcategory]++
 		}
 	}
@@ -353,9 +353,9 @@ func (s *CangJieDocServer) listDocumentsAtPath(category, subcategory string, pat
 	// 筛选文档
 	var documents []*types.Document
 	for _, doc := range s.documents {
-		if string(doc.Category) == category && len(doc.Prerequisites) == 0 {
-			// 首先检查子分类是否匹配
-			if len(pathParts) > 0 && doc.Subcategory != pathParts[0] {
+		if string(doc.Category) == category {
+			// 首先检查子分类是否匹配（使用完整的 subcategory 字符串）
+			if subcategory != "" && doc.Subcategory != subcategory {
 				continue
 			}
 
@@ -365,8 +365,8 @@ func (s *CangJieDocServer) listDocumentsAtPath(category, subcategory string, pat
 				// 检查路径是否匹配（跳过子分类部分）
 				match := true
 				for i, part := range pathParts {
-					// docPathParts: [libs, stdx, crypto, xxx.md]
-					// pathParts: [stdx, crypto]
+					// docPathParts: [libs, std, core, xxx.md]
+					// pathParts: [std, core]
 					// 需要检查 docPathParts[i+1] == pathParts[i]
 					if i+1 >= len(docPathParts) || docPathParts[i+1] != part {
 						match = false
@@ -935,9 +935,6 @@ func (s *CangJieDocServer) generateNavigationTreeText(category types.DocumentCat
 		if category != "" && doc.Category != category {
 			continue
 		}
-		if len(doc.Prerequisites) > 0 {
-			continue
-		}
 		catStr := string(doc.Category)
 		subcatKey := catStr + "/" + doc.Subcategory
 		subcatDocCounts[subcatKey]++
@@ -946,9 +943,6 @@ func (s *CangJieDocServer) generateNavigationTreeText(category types.DocumentCat
 	// 遍历文档构建树
 	for _, doc := range s.documents {
 		if category != "" && doc.Category != category {
-			continue
-		}
-		if len(doc.Prerequisites) > 0 {
 			continue
 		}
 
