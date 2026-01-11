@@ -17,8 +17,8 @@ import (
 // registerTools 注册所有工具
 func (s *CangJieDocServer) registerTools() {
 	// 文档总览工具
-	overviewTool := mcp.NewTool("get_document_overview",
-		mcp.WithDescription("获取文档总览和导航结构"),
+	overviewTool := mcp.NewTool("cangjie_docs_overview",
+		mcp.WithDescription("获取仓颉语言文档总览，支持 tree（树形导航）/map（文档地图）/overview（分类统计）三种视图"),
 		mcp.WithString("view_type",
 			mcp.Description("视图类型 (默认overview)"),
 			mcp.Enum("overview", "map", "navigation", "tree"),
@@ -38,8 +38,8 @@ func (s *CangJieDocServer) registerTools() {
 	s.server.AddTool(overviewTool, s.handleGetDocumentOverview)
 
 	// 文档列表工具
-	listTool := mcp.NewTool("list_documents",
-		mcp.WithDescription("列出分类或子分类的文档（支持路径导航，类似 ls 命令）"),
+	listTool := mcp.NewTool("cangjie_list_docs",
+		mcp.WithDescription("列出仓颉语言文档，支持路径导航（如 std/core）和分类筛选（manual/libs/tools/extra/ohos）"),
 		mcp.WithString("category",
 			mcp.Required(),
 			mcp.Description("主分类"),
@@ -62,8 +62,8 @@ func (s *CangJieDocServer) registerTools() {
 	s.server.AddTool(listTool, s.handleListDocuments)
 
 	// 搜索文档工具
-	searchTool := mcp.NewTool("search_documents",
-		mcp.WithDescription("搜索仓颉语言文档。支持单个关键词或多个关键词（用空格分隔，使用AND逻辑）"),
+	searchTool := mcp.NewTool("cangjie_search",
+		mcp.WithDescription("搜索仓颉语言文档，支持多关键词 AND 匹配、分类过滤和相关性排序"),
 		mcp.WithString("query",
 			mcp.Required(),
 			mcp.Description("搜索查询词。单个关键词或多关键词（空格分隔，AND匹配）"),
@@ -82,8 +82,8 @@ func (s *CangJieDocServer) registerTools() {
 	s.server.AddTool(searchTool, s.handleSearchDocuments)
 
 	// 获取文档内容工具
-	contentTool := mcp.NewTool("get_document_content",
-		mcp.WithDescription("获取指定文档的完整内容"),
+	contentTool := mcp.NewTool("cangjie_get_doc",
+		mcp.WithDescription("获取仓颉语言指定文档的完整内容，支持按章节获取和元数据过滤"),
 		mcp.WithString("doc_id",
 			mcp.Required(),
 			mcp.Description("文档ID"),
